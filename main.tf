@@ -1,32 +1,25 @@
-terraform {
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "6.12.0"
-    }
-  }
-}
+# Enable gcp_services
+resource "google_project_service" "gcp_services" {
+  for_each = toset([
+    "firestore.googleapis.com",            # Firestore API
+    "cloudresourcemanager.googleapis.com", # Cloud Resource Manager API
+    "serviceusage.googleapis.com"          # Service Usage API
+  ])
 
-provider "google" {
-  project = var.project_id
-  region  = var.region
-  zone    = var.zone
-}
-
-# Activate Cloud Firestore
-resource "google_project_service" "firestore" {
-  service            = "firestore.googleapis.com"
+  service            = each.key
   disable_on_destroy = false
 }
 
-# Create Cloud Firestore instance
-resource "google_firestore_database" "database" {
-  project                     = var.project_id
-  name                        = "(default)"
-  location_id                 = var.firestore_location
-  type                        = "FIRESTORE_NATIVE"
-  concurrency_mode            = "OPTIMISTIC"
-  app_engine_integration_mode = "DISABLED"
+# Project-level configurations and shared resources can be defined here
+locals {
+  common_labels = {
+    environment = var.environment
+    managed_by  = "terraform"
+    project     = var.project_id
+  }
 
-  depends_on = [google_project_service.firestore]
+  common_tags = {
+    created_by = "terraform"
+    purpose    = "sample-application"
+  }
 }

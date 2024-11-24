@@ -1,6 +1,9 @@
 {
   "cSpell.words": [
+    "cloudresourcemanager",
     "Firestore",
+    "jsonencode",
+    "serviceusage",
     "terraformrc",
     "tfstate",
     "tfvars"
